@@ -1680,10 +1680,10 @@ var ryw_KRQ_SingleAd = /** @class */ (function (_super) {
                 }
             }
             else {
-                self.ryw_Sprite.visible = false;
-                if (onComplate) {
-                    onComplate();
-                }
+                // self.ryw_Sprite.visible = false;
+                // if (onComplate) {
+                //     onComplate();
+                // }
             }
         });
     };
@@ -5321,6 +5321,7 @@ var gameFail = /** @class */ (function (_super) {
         return _super.call(this) || this;
     }
     gameFail.prototype.ryw_onContinueBtn = function () {
+        // alert()
         _super.prototype.ryw_onContinueBtn.call(this);
         Fiy_1.default.instance.ondestroyScene();
         AppRun_1.default.Instance.init(function () {
