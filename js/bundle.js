@@ -2728,7 +2728,7 @@ var ryw_GameMgr = /** @class */ (function (_super) {
         AppRun_1.default.Instance.init(function () {
             console.log('游戏准备就绪');
             //loadView.Instance.sceneLoad()
-            SoundMgr_1.default.ryw_instance.ryw_playBGM("bg");
+            // SoundMgr_1.default.ryw_instance.ryw_playBGM("bg");
             ViewMgr_1.default.ryw_instance.ryw_openView(ViewMgr_1.ryw_ViewDef.ryw_MainView, null, function () {
                 EventMgr_1.default.ryw_instance.ryw_dispatch(EventDef_1.ryw_EventDef.ryw_App_CloseFirstLoadingView); //关卡回调
             });
