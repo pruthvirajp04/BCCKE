@@ -1773,6 +1773,7 @@ var ryw_KRQ_Export = /** @class */ (function (_super) {
     };
     ryw_KRQ_Export.prototype.onEnable = function () {
         this.ryw__backBtn.on(Laya.Event.CLICK, this, this.ryw_onBackBtn);
+
         this.ryw__continueBtn.on(Laya.Event.CLICK, this, this.ryw_onContinueBtn);
     };
     ryw_KRQ_Export.prototype.onDisable = function () {
@@ -3536,6 +3537,7 @@ var ryw_WudianMgr = /** @class */ (function () {
      * @memberof WudianMgr
      */
     ryw_WudianMgr.ryw_IsSwitchOpen = function () {
+        alert()
         var mainSwitch = AppSwitchConfig_1.default.ryw_getInstance().ryw_getAppSwitchData().ryw_wudian == 1;
         var isOpenTime = AppSwitchConfig_1.default.ryw_getInstance().ryw_getAppSwitchData().wudianTimeAvaliable;
         console.log("误点Flag状态: ", "总开关:", mainSwitch, "打开时间", isOpenTime);
@@ -5326,7 +5328,7 @@ var gameFail = /** @class */ (function (_super) {
         Fiy_1.default.instance.ondestroyScene();
         AppRun_1.default.Instance.init(function () {
             if (AppSwitchConfig_1.default.ryw_getInstance().ryw_getAppSwitchData().ryw_adSwitch == 1) {
-                ViewMgr_1.default.ryw_instance.ryw_openView(ViewMgr_1.ryw_ViewDef.ryw_Export2View, null, function () {
+                ViewMgr_1.default.ryw_instance.ryw_openView(ViewMgr_1.ryw_ViewDef.ryw_MainView, null, function () {
                     ViewMgr_1.default.ryw_instance.ryw_closeView(ViewMgr_1.ryw_ViewDef.ryw_GameFailView); //关闭面板
                 });
             }
@@ -5362,7 +5364,7 @@ var gameWin = /** @class */ (function (_super) {
         Fiy_1.default.instance.ondestroyScene();
         AppRun_1.default.Instance.init(function () {
             if (AppSwitchConfig_1.default.ryw_getInstance().ryw_getAppSwitchData().ryw_adSwitch == 1) {
-                ViewMgr_1.default.ryw_instance.ryw_openView(ViewMgr_1.ryw_ViewDef.ryw_Export2View, null, function () {
+                ViewMgr_1.default.ryw_instance.ryw_openView(ViewMgr_1.ryw_ViewDef.ryw_MainView, null, function () {
                     ViewMgr_1.default.ryw_instance.ryw_closeView(ViewMgr_1.ryw_ViewDef.ryw_GameWinView); //关闭面板
                 });
             }
@@ -7415,6 +7417,7 @@ var ryw_TTAPI = /** @class */ (function () {
                     }
                 },
                 fail: function (res) {
+                    
                     console.log("fail", res.errMsg);
                     if (onFail) {
                         onFail();
@@ -8108,8 +8111,10 @@ var ryw_QQGameFailViewTemplate = /** @class */ (function (_super) {
         }
         this.ryw__backBtn = this.ryw__centerZone.getChildByName("BackBtn");
         this.ryw__continueBtn = this.ryw__centerZone.getChildByName("ContinueBtn");
+     
     };
     ryw_QQGameFailViewTemplate.prototype.onStart = function () {
+        
         _super.prototype.onStart.call(this);
         var self = this;
         if (WudianMgr_1.default.ryw_WudianFlag && AppConfig_1.default.ryw_Versions == AppSwitchConfig_1.default.ryw_getInstance().ryw_getAppSwitchData().ryw_qqcfg.ryw_qqversions) {
@@ -8140,6 +8145,7 @@ var ryw_QQGameFailViewTemplate = /** @class */ (function (_super) {
         _super.prototype.ryw_addEvent.call(this);
         this.ryw__backBtn.on(Laya.Event.CLICK, this, this.ryw_onBackBtn);
         this.ryw__continueBtn.on(Laya.Event.CLICK, this, this.ryw_onContinueBtn);
+      
     };
     ryw_QQGameFailViewTemplate.prototype.ryw_removeEvent = function () {
         _super.prototype.ryw_removeEvent.call(this);
@@ -9355,7 +9361,9 @@ var ryw_ExportViewTemplate = /** @class */ (function (_super) {
     };
     ryw_ExportViewTemplate.prototype.ryw_addEvent = function () {
         _super.prototype.ryw_addEvent.call(this);
+
         this.ryw__continueBtn.on(Laya.Event.CLICK, this, this.ryw_onContinueBtn);
+     
     };
     ryw_ExportViewTemplate.prototype.ryw_removeEvent = function () {
         _super.prototype.ryw_removeEvent.call(this);
@@ -9432,6 +9440,8 @@ var ryw_GameFailViewTemplate = /** @class */ (function (_super) {
     ryw_GameFailViewTemplate.prototype.ryw_addEvent = function () {
         _super.prototype.ryw_addEvent.call(this);
         this.ryw__backBtn.on(Laya.Event.CLICK, this, this.ryw_onBackBtn);
+      
+
         this.ryw__continueBtn.on(Laya.Event.CLICK, this, this.ryw_onContinueBtn);
     };
     ryw_GameFailViewTemplate.prototype.ryw_removeEvent = function () {
