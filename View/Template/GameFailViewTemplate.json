@@ -63,10 +63,27 @@
             "pivotY": 86,
             "pivotX": 375,
             "name": "Tag",
-            "height": 171
+            "height": 171,
+            "visible":false
           },
           "compId": 8
-        }
+        },
+        {
+              "type": "Text",
+              "props": {
+                "x": 250,
+                "y": 700,
+                "width": 196,
+                "text": "Loading...",
+                "name": "LoadingText",
+                "height": 39,
+                "fontSize": 65,
+                "color": "#ffffff",
+                "runtime": "laya.display.Text",
+                "visible":true
+              },
+              "compId": 17
+            }
       ]
     },
     {
@@ -353,11 +370,32 @@
             "x": 227,
             "width": 127,
             "visible": false,
-            "texture": "Template/fanhuishouye.png",
+            "texture": "extraAssets/retryBtn.png",
             "pivotY": 19,
             "pivotX": 64,
             "name": "BackBtn",
             "height": 37
+          },
+          "compId": 9,
+          "child": [
+            {
+              "type": "Script",
+              "props": { "runtime": "View/ButtonAnim.ts" },
+              "compId": 10
+            }
+          ]
+        },{
+          "type": "Sprite",
+          "props": {
+            "y": 920,
+            "x": 325,
+            "width": 242,
+            "visible": true,
+            "texture": "extraAssets/skipBtn.png",
+            "pivotY": 19,
+            "pivotX": 64,
+            "name": "SkipBtn",
+            "height": 101
           },
           "compId": 9,
           "child": [
@@ -372,13 +410,13 @@
           "type": "Sprite",
           "props": {
             "y": 720,
-            "x": 275,
-            "width": 327,
-            "texture": "Template/jixuyouxi.png",
+            "x": 325,
+            "width": 242,
+            "texture": "extraAssets/retryBtn.png",
             "pivotY": 19,
             "pivotX": 64,
             "name": "ContinueBtn",
-            "height": 97
+            "height": 101
           },
           "compId": 11,
           "child": [

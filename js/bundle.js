@@ -2101,59 +2101,9 @@ var ryw_MaiLiang = /** @class */ (function () {
             req.ryw_url = ryw_MaiLiang.ryw_mainUrl + req.ryw_url;
         }
         var completeFunc = function (res) {
-            console.log(res, "MaiLiang http Success");
-            res = JSON.parse(res);
-            if (res.Status == "200") {
-                if (res.Result["OpenId"] != null && res.Result["OpenId"] != "") {
-                    ryw_MaiLiang.ryw_MaiLiangOpenId = res.Result["OpenId"];
-                    ryw_MaiLiang.ryw_time = req.ryw_data.posttime;
-                    console.log("获得买量系统OpenId " + ryw_MaiLiang.ryw_MaiLiangOpenId);
-                }
-                else {
-                    console.log("上报买量系统停留时间成功");
-                }
-                if (req.ryw_onSuccess) {
-                    req.ryw_onSuccess(res);
-                }
-            }
-            else {
-                if (req.ryw_onFail) {
-                    req.ryw_onFail(res);
-                }
-            }
-            req.ryw_onSuccess = null;
-            req = null;
         };
         var errorFunc = function (res) {
-            console.log(res, "MaiLiang http fail");
-            if (req.ryw_onFail) {
-                req.ryw_onFail(res);
-            }
-            req.ryw_onFail = null;
-            req = null;
         };
-        var xhr = new Laya.HttpRequest();
-        xhr.once(Laya.Event.COMPLETE, ryw_MaiLiang, completeFunc);
-        xhr.once(Laya.Event.ERROR, ryw_MaiLiang, errorFunc);
-        if (req.ryw_meth == "get") {
-            var para = "";
-            for (var _i = 0, _a = Object.keys(req.ryw_data); _i < _a.length; _i++) {
-                var key = _a[_i];
-                var value = req.ryw_data[key];
-                para += key + "=" + value + "&";
-            }
-            req.ryw_url = req.ryw_url + "?" + para;
-            xhr.send(req.ryw_url, null, req.ryw_meth);
-        }
-        else {
-            var para = "";
-            for (var _b = 0, _c = Object.keys(req.ryw_data); _b < _c.length; _b++) {
-                var key = _c[_b];
-                var value = req.ryw_data[key];
-                para += key + "=" + value + "&";
-            }
-            xhr.send(req.ryw_url, para, req.ryw_meth, null, ["Content-Type", "application/x-www-form-urlencoded"]);
-        }
     };
     /**
      * 获得买量系统唯一标识ID,此ID的作用是用来上报游戏时间
@@ -2324,12 +2274,12 @@ var Main = /** @class */ (function () {
         EventMgr_1.default.ryw_instance.ryw_regOnceEvent(EventDef_1.ryw_EventDef.ryw_App_CloseFirstLoadingView, this, this.closeloadingUI);
     };
     Main.prototype.initLoadingView = function () {
-        this._loadingUI = new layaMaxUI_1.ui.View.LoadingUI();
-        Laya.stage.addChild(this._loadingUI);
-        this._loadingUI.width = Laya.stage.width;
-        this._loadingUI.height = Laya.stage.height;
-        this._loadingView = this._loadingUI.getComponent(LoadingView_1.default);
-        this._loadingView.ryw_setProcess(0);
+        // this._loadingUI = new layaMaxUI_1.ui.View.LoadingUI();
+        // Laya.stage.addChild(this._loadingUI);
+        // this._loadingUI.width = Laya.stage.width;
+        // this._loadingUI.height = Laya.stage.height;
+        // this._loadingView = this._loadingUI.getComponent(LoadingView_1.default);
+        //this._loadingView.ryw_setProcess(0);
     };
     Main.prototype.postResToOpenDataContext = function (onComplate) {
         if (Laya.Browser.onMiniGame) {
@@ -2359,299 +2309,25 @@ var Main = /** @class */ (function () {
         this.preLoad();
         var resource = this._preLoadRes;
         var self = this;
-        if (Laya.Browser.onMiniGame) {
-            //开始加载分包
-            var loadSubResTask = Laya.Browser.window["wx"].loadSubpackage({
-                name: 'subRes',
-                success: function (res) {
-                    // 分包加载成功,开始预加载资源
-                    if (resource.length > 0) {
-                        Laya.loader.load(resource, Laya.Handler.create(_this, function () {
-                            self.onLoadResComplate(); //预加载完成
-                        }), Laya.Handler.create(_this, function (res) {
-                            //todo:跟新进度条
-                            self._loadingView.ryw_setProcess(res / 2 + 0.5);
-                        }));
-                    }
-                    else {
-                        self.onLoadResComplate(); //预加载完成
-                    }
-                },
-                fail: function (res) {
-                    _this.loadRes(); //加载失败，重新加载
-                }
-            });
-            loadSubResTask.onProgressUpdate(function (res) {
-                self._loadingView.ryw_setProcess(res / 2);
-            });
-        }
-        else if (Laya.Browser.onQGMiniGame) //oppo小游戏
-         {
-            //开始加载分包
-            var loadSubResTask = Laya.Browser.window["qg"].loadSubpackage({
-                name: 'subRes',
-                success: function (res) {
-                    // 分包加载成功,开始预加载资源
-                    if (resource.length > 0) {
-                        Laya.loader.load(resource, Laya.Handler.create(_this, function () {
-                            self.onLoadResComplate(); //预加载完成
-                        }), Laya.Handler.create(_this, function (res) {
-                            //todo:跟新进度条
-                            self._loadingView.ryw_setProcess(res / 2 + 0.5);
-                        }));
-                    }
-                    else {
-                        self.onLoadResComplate(); //预加载完成
-                    }
-                },
-                fail: function (res) {
-                    _this.loadRes(); //加载失败，重新加载
-                }
-            });
-            loadSubResTask.onProgressUpdate(function (res) {
-                // 加载进度百分比
-                var progress = res["progress"];
-                // 下载数据
-                var totalBytesWritten = res["totalBytesWritten"];
-                // 总长度
-                var totalBytesExpectedToWrite = res["totalBytesExpectedToWrite"];
-                self._loadingView.ryw_setProcess(progress / 2);
-            });
-        }
-        else if (Laya.Browser.onQQMiniGame) {
-            //开始加载分包
-            var loadSubResTask = Laya.Browser.window["qq"].loadSubpackage({
-                name: 'subRes',
-                success: function (res) {
-                    // 分包加载成功,开始预加载资源
-                    if (resource.length > 0) {
-                        Laya.loader.load(resource, Laya.Handler.create(_this, function () {
-                            self.onLoadResComplate(); //预加载完成
-                        }), Laya.Handler.create(_this, function (res) {
-                            //todo:跟新进度条
-                            self._loadingView.ryw_setProcess(res / 2 + 0.5);
-                        }));
-                    }
-                    else {
-                        self.onLoadResComplate(); //预加载完成
-                    }
-                },
-                fail: function (res) {
-                    _this.loadRes(); //加载失败，重新加载
-                }
-            });
-            loadSubResTask.onProgressUpdate(function (res) {
-                self._loadingView.ryw_setProcess(res / 2);
-            });
-        }
-        else { //字节跳动没有分包
+         //字节跳动没有分包
             if (resource.length > 0) {
                 Laya.loader.load(resource, Laya.Handler.create(this, function () {
                     self.onLoadResComplate();
                 }), Laya.Handler.create(this, function (res) {
-                    self._loadingView.ryw_setProcess(res);
+                    //self._loadingView.ryw_setProcess(res);
                 }));
             }
             else {
                 self.onLoadResComplate();
             }
-        }
     };
     Main.prototype.onLoadResComplate = function () {
         var _this = this;
         var self = this;
-        this._loadingView.ryw_setProcess(1);
-        if (Laya.Browser.onMiniGame) {
-            WXAPI_1.default.ryw_wxLogin(function (code) {
-                var _this = this;
-                User_1.default.ryw_code = code;
-                HttpUnit_1.default.ryw_login(function (res) {
-                    if (res.code == 1) {
-                        console.log("登陆成功！！！");
-                        User_1.default.ryw_token = res.data.token;
-                        User_1.default.ryw_openId = res.data.openid;
-                        ALD_1.default.ryw_aldSendOpenId(User_1.default.ryw_openId);
-                        HttpUnit_1.default.ryw_getGameData(function (res) {
-                            console.log("获取用户数据成功！！！");
-                            if (1 == res.code) {
-                                User_1.default.ryw_initiUser(res.data);
-                            }
-                            else {
-                                User_1.default.ryw_initiUser(null);
-                            }
-                            GameConfig_1.default.startScene && Laya.Scene.open(GameConfig_1.default.startScene, false, Laya.Handler.create(_this, function () {
-                            }));
-                        }, function (res) {
-                            console.log("获取用户数据失败！！！");
-                            User_1.default.ryw_token = "";
-                            User_1.default.ryw_openId = "";
-                            User_1.default.ryw_initiUser(null);
-                            GameConfig_1.default.startScene && Laya.Scene.open(GameConfig_1.default.startScene, false, Laya.Handler.create(_this, function () {
-                            }));
-                        });
-                    }
-                    else {
-                        console.log("登陆失败！！！" + res);
-                        User_1.default.ryw_initiUser(null);
-                        GameConfig_1.default.startScene && Laya.Scene.open(GameConfig_1.default.startScene, false, Laya.Handler.create(_this, function () {
-                        }));
-                    }
-                }, function (res) {
-                    console.log("登陆失败！！！" + res);
-                    User_1.default.ryw_initiUser(null);
-                    GameConfig_1.default.startScene && Laya.Scene.open(GameConfig_1.default.startScene, false, Laya.Handler.create(_this, function () {
-                    }));
-                });
-            }, null);
-        }
-        else if (Laya.Browser.onQGMiniGame) //oppo小游戏
-         {
-            OPPOAPI_1.default.ryw_initAdService(function () {
-            }, function () {
-            }, function () {
-            });
-            OPPOAPI_1.default.ryw_Login(function (token) {
-                var _this = this;
-                User_1.default.ryw_code = token;
-                HttpUnit_1.default.ryw_login(function (res) {
-                    if (res.code == 1) {
-                        console.log("登陆成功！！！");
-                        User_1.default.ryw_token = res.data.token;
-                        User_1.default.ryw_openId = res.data.openid;
-                        HttpUnit_1.default.ryw_getGameData(function (res) {
-                            console.log("获取用户数据成功！！！");
-                            if (1 == res.code) {
-                                User_1.default.ryw_initiUser(res.data);
-                                console.log("获取用户数据--------------------Start");
-                                for (var key in res.data) {
-                                    console.log(key, res.data[key]);
-                                }
-                                console.log("获取用户数据--------------------End");
-                            }
-                            else {
-                                User_1.default.ryw_initiUser(null);
-                            }
-                            GameConfig_1.default.startScene && Laya.Scene.open(GameConfig_1.default.startScene, false, Laya.Handler.create(_this, function () {
-                            }));
-                        }, function (res) {
-                            console.log("获取用户数据失败！！！");
-                            User_1.default.ryw_token = "";
-                            User_1.default.ryw_openId = "";
-                            User_1.default.ryw_initiUser(null);
-                            GameConfig_1.default.startScene && Laya.Scene.open(GameConfig_1.default.startScene, false, Laya.Handler.create(_this, function () {
-                            }));
-                        });
-                    }
-                    else {
-                        console.log("登陆失败！！！", res);
-                        User_1.default.ryw_initiUser(null);
-                        GameConfig_1.default.startScene && Laya.Scene.open(GameConfig_1.default.startScene, false, Laya.Handler.create(_this, function () {
-                        }));
-                    }
-                }, function (res) {
-                    console.log("登陆失败！！！", res);
-                    User_1.default.ryw_initiUser(null);
-                    GameConfig_1.default.startScene && Laya.Scene.open(GameConfig_1.default.startScene, false, Laya.Handler.create(_this, function () {
-                    }));
-                });
-            }, null);
-        }
-        else if (Laya.Browser.onQQMiniGame) //qq小游戏
-         {
-            QQMiniGameAPI_1.default.ryw_Login(function (code) {
-                var _this = this;
-                User_1.default.ryw_code = code;
-                HttpUnit_1.default.ryw_login(function (res) {
-                    if (res.code == 1) {
-                        console.log("登陆成功！！！");
-                        User_1.default.ryw_token = res.data.token;
-                        User_1.default.ryw_openId = res.data.openid;
-                        ALD_1.default.ryw_aldSendOpenId(User_1.default.ryw_openId);
-                        HttpUnit_1.default.ryw_getGameData(function (res) {
-                            console.log("获取用户数据成功！！！");
-                            if (1 == res.code) {
-                                User_1.default.ryw_initiUser(res.data);
-                            }
-                            else {
-                                User_1.default.ryw_initiUser(null);
-                            }
-                            GameConfig_1.default.startScene && Laya.Scene.open(GameConfig_1.default.startScene, false, Laya.Handler.create(_this, function () {
-                            }));
-                        }, function (res) {
-                            console.log("获取用户数据失败！！！");
-                            User_1.default.ryw_token = "";
-                            User_1.default.ryw_openId = "";
-                            User_1.default.ryw_initiUser(null);
-                            GameConfig_1.default.startScene && Laya.Scene.open(GameConfig_1.default.startScene, false, Laya.Handler.create(_this, function () {
-                            }));
-                        });
-                    }
-                    else {
-                        console.log("登陆失败！！！" + res);
-                        User_1.default.ryw_initiUser(null);
-                        GameConfig_1.default.startScene && Laya.Scene.open(GameConfig_1.default.startScene, false, Laya.Handler.create(_this, function () {
-                        }));
-                    }
-                }, function (res) {
-                    console.log("登陆失败！！！" + res);
-                    User_1.default.ryw_initiUser(null);
-                    GameConfig_1.default.startScene && Laya.Scene.open(GameConfig_1.default.startScene, false, Laya.Handler.create(_this, function () {
-                    }));
-                });
-            }, null);
-        }
-        else if (AppConfig_1.default.onTTMiniGame) //头条，字节跳动
-         {
-            TTAPI_1.default.ryw_ttLogin(function (code) {
-                var _this = this;
-                User_1.default.ryw_code = code;
-                HttpUnit_1.default.ryw_login(function (res) {
-                    if (res.code == 1) {
-                        console.log("登陆成功！！！");
-                        User_1.default.ryw_token = res.data.token;
-                        User_1.default.ryw_openId = res.data.openid;
-                        HttpUnit_1.default.ryw_getGameData(function (res) {
-                            console.log("获取用户数据成功！！！");
-                            if (1 == res.code) {
-                                User_1.default.ryw_initiUser(res.data);
-                            }
-                            else {
-                                User_1.default.ryw_initiUser(null);
-                            }
-                            GameConfig_1.default.startScene && Laya.Scene.open(GameConfig_1.default.startScene, false, Laya.Handler.create(_this, function () {
-                            }));
-                        }, function (res) {
-                            console.log("获取用户数据失败！！！");
-                            User_1.default.ryw_token = "";
-                            User_1.default.ryw_openId = "";
-                            User_1.default.ryw_initiUser(null);
-                            GameConfig_1.default.startScene && Laya.Scene.open(GameConfig_1.default.startScene, false, Laya.Handler.create(_this, function () {
-                            }));
-                        });
-                    }
-                    else {
-                        console.log("登陆失败！！！" + res);
-                        User_1.default.ryw_initiUser(null);
-                        GameConfig_1.default.startScene && Laya.Scene.open(GameConfig_1.default.startScene, false, Laya.Handler.create(_this, function () {
-                        }));
-                    }
-                }, function (res) {
-                    console.log("登陆失败！！！" + res);
-                    User_1.default.ryw_initiUser(null);
-                    GameConfig_1.default.startScene && Laya.Scene.open(GameConfig_1.default.startScene, false, Laya.Handler.create(_this, function () {
-                    }));
-                });
-            }, function () {
-                User_1.default.ryw_initiUser(null);
-                GameConfig_1.default.startScene && Laya.Scene.open(GameConfig_1.default.startScene, false, Laya.Handler.create(_this, function () {
-                }));
-            });
-        }
-        else {
+        //this._loadingView.ryw_setProcess(1);
             User_1.default.ryw_testInitUser(); //测试
             GameConfig_1.default.startScene && Laya.Scene.open(GameConfig_1.default.startScene, false, Laya.Handler.create(this, function () {
             }));
-        }
     };
     Main.prototype.closeloadingUI = function () {
         if (this._loadingUI && !this._loadingUI.destroyed) {
@@ -4668,6 +4344,7 @@ var Funmgr = /** @class */ (function (_super) {
         _super.prototype.onAwake.call(this);
         Funmgr.instance = this;
         this.batter = this.ryw__centerZone.getChildByName("batter");
+        this.nudge = this.owner.getChildByName("Nudge");
         this.batterEndText = this.batter.getChildByName("EndText");
         this.schedule = this.ryw__centerZone.getChildByName("schedule");
         this.scheduleH = this.schedule.getChildByName("scheduleH");
@@ -4677,9 +4354,14 @@ var Funmgr = /** @class */ (function (_super) {
         this.end = this.schedule.getChildByName("End").getChildByName("end");
         this.schedule_sta.value = String(User_1.default.ryw_getLeveNum());
         this.schedule_end.value = String(User_1.default.ryw_getLeveNum() + 1);
-        this.sho = this.ryw__startBtn.getChildByName("sho");
+        this.sho = this.nudge.getChildByName("sho");
         this.money = this.ryw__centerZone.getChildByName("MoneyInfo");
         this.money.visible = false;
+        this.Tween_0 = Laya.Tween.to(this.sho, { x: 350 }, 1000, Laya.Ease.linearIn, Laya.Handler.create(this, function () {
+            this.Tween_1 = Laya.Tween.to(this.sho, { x: 80 }, 1000, Laya.Ease.linearIn, Laya.Handler.create(this, function () {
+                this.onShoMove();
+            }));
+        }));
     };
     Funmgr.prototype.onStart = function () {
         _super.prototype.onStart.call(this);
@@ -4687,11 +4369,12 @@ var Funmgr = /** @class */ (function (_super) {
     };
     Funmgr.prototype.onShoMove = function () {
         var _this = this;
-        this.Tween_0 = Laya.Tween.to(this.sho, { x: 350 }, 1000, Laya.Ease.linearIn, Laya.Handler.create(this, function () {
-            _this.Tween_1 = Laya.Tween.to(_this.sho, { x: 80 }, 1000, Laya.Ease.linearIn, Laya.Handler.create(_this, function () {
+            this.Tween_0 = Laya.Tween.to(this.sho, { x: 350 }, 500, Laya.Ease.linearIn, Laya.Handler.create(this, function () {
+            _this.Tween_1 = Laya.Tween.to(_this.sho, { x: 80 }, 500, Laya.Ease.linearIn, Laya.Handler.create(_this, function () {
                 _this.onShoMove();
             }));
         }));
+        
     };
     Funmgr.prototype.ryw_addEvent = function () {
         _super.prototype.ryw_addEvent.call(this);
@@ -4706,11 +4389,16 @@ var Funmgr = /** @class */ (function (_super) {
     Funmgr.prototype.ryw_onStartBtn = function () {
         _super.prototype.ryw_onStartBtn.call(this);
         this.ryw__startBtn.visible = false;
+        this.owner.getChildByName("Nudge").visible=true;
         if (Funmgr.instance.Tween_0 != null)
             Laya.Tween.clear(Funmgr.instance.Tween_0);
         if (Funmgr.instance.Tween_1 != null)
             Laya.Tween.clear(Funmgr.instance.Tween_1);
         CameraMove_1.default.instance.onStartGame();
+        setTimeout(()=>{
+            if(this.owner != null)
+            this.owner.getChildByName("Nudge").visible=false;
+        },1500);
     };
     Funmgr.prototype.onGameOver = function () {
         SoundMgr_1.default.ryw_instance.ryw_playSound("death");
@@ -5315,6 +5003,7 @@ var GameFailViewTemplate_1 = require("../../View/TemplateViews/GameFail/GameFail
 var AppSwitchConfig_1 = require("../../Config/AppSwitchConfig");
 var Fiy_1 = require("./Fiy");
 var AppRun_1 = require("../AppRun");
+var GameMgr_1 = require("../../Mgr/GameMgr");
 var ViewMgr_1 = require("../../Mgr/ViewMgr");
 var User_1 = require("../../User/User");
 var gameFail = /** @class */ (function (_super) {
@@ -5339,10 +5028,56 @@ var gameFail = /** @class */ (function (_super) {
             }
         }, User_1.default.ryw_getLeveNum());
     };
+     gameFail.prototype.onUpdate = function () {
+        if(sessionStorage.getItem("SkipLvl") == 1){
+            sessionStorage.removeItem("SkipLvl");
+            this.ryw__topZone.getChildByName("LoadingText").visible = true;
+            this.ryw__centerZone.visible = false;
+        this.ryw__backBtn.visible = false;
+        this.ryw__continueBtn.visible = false;
+        this.ryw__skipBtn.visible = false;
+        this.ryw__topZone.visible = false;
+        _super.prototype.ryw_onSkipBtn.call(this);
+        User_1.default.ryw_setLeveNum(User_1.default.ryw_getLeveNum() + 1);
+        GameMgr_1.default.ryw_getInstance().ryw_saveGameData();
+        Fiy_1.default.instance.ondestroyScene();
+        AppRun_1.default.Instance.init(function () {
+            if (AppSwitchConfig_1.default.ryw_getInstance().ryw_getAppSwitchData().ryw_adSwitch == 1) {
+                ViewMgr_1.default.ryw_instance.ryw_openView(ViewMgr_1.ryw_ViewDef.ryw_MainView, null, function () {
+                    ViewMgr_1.default.ryw_instance.ryw_closeView(ViewMgr_1.ryw_ViewDef.ryw_GameFailView); //关闭面板
+                });
+            }
+            else {
+                ViewMgr_1.default.ryw_instance.ryw_openView(ViewMgr_1.ryw_ViewDef.ryw_MainView, null, function () {
+                    ViewMgr_1.default.ryw_instance.ryw_closeView(ViewMgr_1.ryw_ViewDef.ryw_GameFailView); //关闭面板
+                });
+            }
+        }, User_1.default.ryw_getLeveNum());
+    }
+    };
+    gameFail.prototype.ryw_onSkipBtn = function () {
+        // alert()
+        _super.prototype.ryw_onSkipBtn.call(this);
+        User_1.default.ryw_setLeveNum(User_1.default.ryw_getLeveNum() + 1);
+        GameMgr_1.default.ryw_getInstance().ryw_saveGameData();
+        Fiy_1.default.instance.ondestroyScene();
+        AppRun_1.default.Instance.init(function () {
+            if (AppSwitchConfig_1.default.ryw_getInstance().ryw_getAppSwitchData().ryw_adSwitch == 1) {
+                ViewMgr_1.default.ryw_instance.ryw_openView(ViewMgr_1.ryw_ViewDef.ryw_MainView, null, function () {
+                    ViewMgr_1.default.ryw_instance.ryw_closeView(ViewMgr_1.ryw_ViewDef.ryw_GameFailView); //关闭面板
+                });
+            }
+            else {
+                ViewMgr_1.default.ryw_instance.ryw_openView(ViewMgr_1.ryw_ViewDef.ryw_MainView, null, function () {
+                    ViewMgr_1.default.ryw_instance.ryw_closeView(ViewMgr_1.ryw_ViewDef.ryw_GameFailView); //关闭面板
+                });
+            }
+        }, User_1.default.ryw_getLeveNum());
+    };
     return gameFail;
 }(GameFailViewTemplate_1.default));
 exports.default = gameFail;
-},{"../../Config/AppSwitchConfig":5,"../../Mgr/ViewMgr":30,"../../User/User":55,"../../View/TemplateViews/GameFail/GameFailViewTemplate":77,"../AppRun":33,"./Fiy":37}],43:[function(require,module,exports){
+},{"../../Config/AppSwitchConfig":5,"../../Mgr/GameMgr":28,"../../Mgr/ViewMgr":30,"../../User/User":55,"../../View/TemplateViews/GameFail/GameFailViewTemplate":77,"../AppRun":33,"./Fiy":37}],43:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var GameWinViewTemplate_1 = require("../../View/TemplateViews/GameWin/GameWinViewTemplate");
@@ -5434,51 +5169,9 @@ var ryw_HttpUnit = /** @class */ (function () {
             req.ryw_url = NetConfig_1.default.ryw_serverUrl + req.ryw_url;
         }
         var completeFunc = function (res) {
-            console.log(res, "http Success");
-            if (req.ryw_onSuccess) {
-                req.ryw_onSuccess(res);
-            }
-            req.ryw_onSuccess = null;
-            req = null;
         };
         var errorFunc = function (res) {
-            console.log(res, "http fail");
-            if (req.ryw_onFail) {
-                req.ryw_onFail(res);
-            }
-            req.ryw_onFail = null;
-            req = null;
         };
-        var xhr = new Laya.HttpRequest();
-        xhr.once(Laya.Event.COMPLETE, ryw_HttpUnit, completeFunc);
-        xhr.once(Laya.Event.ERROR, ryw_HttpUnit, errorFunc);
-        var dataStr = JSON.stringify(req.ryw_data);
-        if (Laya.Browser.onMiniGame || AppConfig_1.default.onTTMiniGame) {
-            req.ryw_data.code = User_1.default.ryw_code;
-        }
-        else if (Laya.Browser.onQGMiniGame) //OPPO小游戏
-         {
-            req.ryw_data.oppotoken = User_1.default.ryw_code;
-        }
-        else if (Laya.Browser.onQQMiniGame) //qq小游戏
-         {
-            req.ryw_data.code = User_1.default.ryw_code;
-        }
-        else {
-            req.ryw_data.code = User_1.default.ryw_code;
-        }
-        var time = "time=" + String(Date.now());
-        var header = [
-            "Content-Type", "application/json",
-            "state", NetConfig_1.default.ryw_state,
-            "gameid", NetConfig_1.default.ryw_gameid,
-            "sign", AesTools_1.default.ryw_encrypt(time),
-        ];
-        if (User_1.default.ryw_token) {
-            header.push("token");
-            header.push(User_1.default.ryw_token);
-        }
-        xhr.send(req.ryw_url, JSON.stringify(req.ryw_data), req.ryw_meth, "json", header);
     };
     //todo:这里添加你们和服务器相互的接口
     ryw_HttpUnit.ryw_login = function (onSuccess, onFail) {
@@ -6465,51 +6158,9 @@ var ryw_ShareAd = /** @class */ (function () {
         }
         var completeFunc = function (res) {
             //console.log(res,"http Success")
-            res = JSON.parse(res);
-            if (req.ryw_onSuccess) {
-                req.ryw_onSuccess(res);
-            }
-            req.ryw_onSuccess = null;
-            req = null;
         };
         var errorFunc = function (res) {
-            console.log(res, "http fail");
-            if (req.ryw_onFail) {
-                req.ryw_onFail(res);
-            }
-            req.ryw_onFail = null;
-            req = null;
         };
-        var xhr = new Laya.HttpRequest();
-        xhr.once(Laya.Event.COMPLETE, ryw_ShareAd, completeFunc);
-        xhr.once(Laya.Event.ERROR, ryw_ShareAd, errorFunc);
-        if (req.ryw_meth == "get") {
-            var para = "";
-            for (var _i = 0, _a = Object.keys(req.ryw_data); _i < _a.length; _i++) {
-                var key = _a[_i];
-                var value = req.ryw_data[key];
-                para += key + "=" + value + "&";
-            }
-            req.ryw_url = req.ryw_url + "?" + para;
-            var header = [
-                "versions", AppConfig_1.default.ryw_Versions,
-            ];
-            xhr.send(req.ryw_url, null, req.ryw_meth, null, header);
-        }
-        else {
-            var para = "";
-            for (var _b = 0, _c = Object.keys(req.ryw_data); _b < _c.length; _b++) {
-                var key = _c[_b];
-                var value = req.ryw_data[key];
-                para += key + "=" + value + "&";
-            }
-            para += "ts=" + String(Date.now()) + "&";
-            var header = [
-                "Content-Type", "application/x-www-form-urlencoded",
-                "versions", AppConfig_1.default.ryw_Versions,
-            ];
-            xhr.send(req.ryw_url, para, req.ryw_meth, null, header);
-        }
     };
     ryw_ShareAd.ryw_getAdPosData = function (onSuccess, onFail) {
         var req = new HttpUnit_1.ryw_requestData();
@@ -7452,7 +7103,13 @@ var EventDef_1 = require("../Event/EventDef");
 //游戏数据,为保持版本兼容，建议不要删除和修改字段名
 var ryw_UserGameData = /** @class */ (function () {
     function ryw_UserGameData() {
-        this.levelNum = 1; //当前关卡
+        if(localStorage.getItem("CJ_levels")){
+            this.levelNum = parseInt(localStorage.getItem("CJ_levels"));
+        }
+        else {
+            this.levelNum = 1;
+            localStorage.setItem("CJ_levels",1);
+        }
         this.moneyNum = 0; //金币数量
         this.crystalNum = 0; //钻石数量    
     }
@@ -7475,7 +7132,13 @@ var ryw_User = /** @class */ (function (_super) {
         return JSON.stringify(ryw_User.ryw__gameData);
     };
     ryw_User.ryw_testInitUser = function () {
-        ryw_User.ryw__gameData.levelNum = 1;
+        if(localStorage.getItem("CJ_levels")){
+                 ryw_User.ryw__gameData.levelNum = parseInt(localStorage.getItem("CJ_levels"));
+            }
+            else {
+                 ryw_User.ryw__gameData.levelNum = 1;
+                localStorage.setItem("CJ_levels",1);
+            }
         ryw_User.ryw__gameData.moneyNum = 10000000;
         ryw_User.ryw__gameData.crystalNum = 10000000;
     };
@@ -7490,10 +7153,14 @@ var ryw_User = /** @class */ (function (_super) {
         }
     };
     ryw_User.ryw_setLeveNum = function (levelNum) {
+        localStorage.setItem("CJ_levels",levelNum);
         ryw_User.ryw__gameData.levelNum = levelNum;
     };
     ryw_User.ryw_getLeveNum = function () {
-        return ryw_User.ryw__gameData.levelNum;
+        if(localStorage.getItem("CJ_levels")){
+            return parseInt(localStorage.getItem("CJ_levels"));
+        }
+        else return 1;
     };
     ryw_User.ryw_addMoney = function (add) {
         add = Math.ceil(add);
@@ -9383,7 +9050,10 @@ var AppSwitchConfig_1 = require("../../../Config/AppSwitchConfig");
 var WXADMgr_1 = require("../../../Mgr/WXADMgr");
 var KRQ_RollSingleAd_1 = require("../../../KRQ/Com/KRQ_RollSingleAd");
 var Utilit_1 = require("../../../Utilit");
+var User_1 = require("../../../User/User");
 var ViewMgr_1 = require("../../../Mgr/ViewMgr");
+var GameMgr_1 = require("../../../Mgr/GameMgr");
+var Fiy_1 = require("../../Fiy");
 var ryw_GameFailViewTemplate = /** @class */ (function (_super) {
     __extends(ryw_GameFailViewTemplate, _super);
     function ryw_GameFailViewTemplate() {
@@ -9391,6 +9061,7 @@ var ryw_GameFailViewTemplate = /** @class */ (function (_super) {
         _this.ryw__centerZone = null;
         _this.ryw__backBtn = null;
         _this.ryw__continueBtn = null;
+        _this.ryw__skipBtn = null;
         _this.ryw__rollSingleAds = new Array();
         _this.ryw__clickTag = false;
         _this.ryw__clickTimingTag = false;
@@ -9398,13 +9069,20 @@ var ryw_GameFailViewTemplate = /** @class */ (function (_super) {
         return _this;
     }
     ryw_GameFailViewTemplate.prototype.onAwake = function () {
+        
         _super.prototype.onAwake.call(this);
+        this.ryw__topZone.visible = false;
         this.ryw__centerZone = this.ryw_View.getChildByName("CenterZone");
+        this.ryw__centerZone.visible = false;
         if (Utilit_1.default.ryw_isIphoneX()) {
             this.ryw__centerZone.top = this.ryw__centerZone.top + 75;
         }
         this.ryw__backBtn = this.ryw__centerZone.getChildByName("BackBtn");
         this.ryw__continueBtn = this.ryw__centerZone.getChildByName("ContinueBtn");
+        this.ryw__skipBtn = this.ryw__centerZone.getChildByName("SkipBtn");
+        this.ryw__backBtn.visible = false;
+        this.ryw__continueBtn.visible = false;
+        this.ryw__skipBtn.visible = false;
         for (var i = 0; i < this.ryw__centerZone.numChildren; ++i) {
             var ad = this.ryw__centerZone.getChildAt(i).getComponent(KRQ_RollSingleAd_1.default);
             if (null == ad)
@@ -9414,6 +9092,14 @@ var ryw_GameFailViewTemplate = /** @class */ (function (_super) {
         if (WudianMgr_1.default.ryw_WudianFlag) {
             this.ryw_HistoryBtn.visible = false;
         }
+        this.ryw__topZone.visible = true;
+        this.ryw__topZone.getChildByName("Tag").visible = true;
+        this.ryw__topZone.getChildByName("LoadingText").visible = false;
+        this.ryw__centerZone.visible = true;
+        //this.ryw__backBtn.visible = true;
+        this.ryw__continueBtn.visible = true;
+        this.ryw__skipBtn.visible = true;
+        
     };
     ryw_GameFailViewTemplate.prototype.onStart = function () {
         _super.prototype.onStart.call(this);
@@ -9441,13 +9127,14 @@ var ryw_GameFailViewTemplate = /** @class */ (function (_super) {
         _super.prototype.ryw_addEvent.call(this);
         this.ryw__backBtn.on(Laya.Event.CLICK, this, this.ryw_onBackBtn);
       
-
+        this.ryw__skipBtn.on(Laya.Event.CLICK, this, this.ryw_onSkipBtn);
         this.ryw__continueBtn.on(Laya.Event.CLICK, this, this.ryw_onContinueBtn);
     };
     ryw_GameFailViewTemplate.prototype.ryw_removeEvent = function () {
         _super.prototype.ryw_removeEvent.call(this);
         this.ryw__backBtn.off(Laya.Event.CLICK, this, this.ryw_onBackBtn);
         this.ryw__continueBtn.off(Laya.Event.CLICK, this, this.ryw_onContinueBtn);
+        this.ryw__skipBtn.off(Laya.Event.CLICK, this, this.ryw_onSkipBtn);
     };
     ryw_GameFailViewTemplate.prototype.ryw_onBackBtn = function () {
         if (!this.ryw__clickTag && WudianMgr_1.default.ryw_WudianFlag) {
@@ -9477,6 +9164,18 @@ var ryw_GameFailViewTemplate = /** @class */ (function (_super) {
         }
         //todo:你的代码
     };
+    ryw_GameFailViewTemplate.prototype.ryw_onSkipBtn = function(){
+        //  User_1.default.ryw_setLeveNum(User_1.default.ryw_getLeveNum() + 1);
+        // GameMgr_1.default.ryw_getInstance().ryw_saveGameData();
+        // Fiy_1.default.instance.ondestroyScene();
+
+
+        //         ViewMgr_1.default.ryw_instance.ryw_openView(ViewMgr_1.ryw_ViewDef.ryw_MainView, null, function () {
+        //             ViewMgr_1.default.ryw_instance.ryw_closeView(ViewMgr_1.ryw_ViewDef.ryw_GameFailView); //关闭面板
+        //         });
+            
+        
+    }
     ryw_GameFailViewTemplate.prototype.ryw_BannerUp = function () {
         var _this = this;
         var self = this;
@@ -9524,7 +9223,7 @@ var ryw_GameFailViewTemplate = /** @class */ (function (_super) {
     return ryw_GameFailViewTemplate;
 }(TemplateViewBase_1.default));
 exports.default = ryw_GameFailViewTemplate;
-},{"../../../Config/AppSwitchConfig":5,"../../../KRQ/Com/KRQ_RollSingleAd":18,"../../../Mgr/ViewMgr":30,"../../../Mgr/WXADMgr":31,"../../../Mgr/WudianMgr":32,"../../../Utilit":56,"../TemplateViewBase":84}],78:[function(require,module,exports){
+},{"../../../Config/AppSwitchConfig":5,"../../../KRQ/Com/KRQ_RollSingleAd":18,"../../../Mgr/GameMgr":28,"../../../Mgr/ViewMgr":30,"../../../Mgr/WXADMgr":31,"../../../Mgr/WudianMgr":32,"../../Fiy":37,"../../../User/User":55,"../../../Utilit":56,"../TemplateViewBase":84}],78:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var TemplateViewBase_1 = require("../TemplateViewBase");
@@ -9748,6 +9447,7 @@ var EventMgr_1 = require("../../../Event/EventMgr");
 var EventDef_1 = require("../../../Event/EventDef");
 var User_1 = require("../../../User/User");
 var Utilit_1 = require("../../../Utilit");
+var ViewMgr_1 = require("../../../Mgr/ViewMgr");
 var ryw_MainViewTemplate = /** @class */ (function (_super) {
     __extends(ryw_MainViewTemplate, _super);
     function ryw_MainViewTemplate() {
@@ -9755,6 +9455,7 @@ var ryw_MainViewTemplate = /** @class */ (function (_super) {
         _this.ryw__krqMain = null;
         _this.ryw__centerZone = null;
         _this.ryw__startBtn = null;
+        _this.ryw__skipBtn = null;
         _this.ryw__levelNum = null;
         _this.ryw__moneyNum = null;
         return _this;
@@ -9776,6 +9477,7 @@ var ryw_MainViewTemplate = /** @class */ (function (_super) {
             }
         }
         this.ryw__startBtn = this.ryw__centerZone.getChildByName("StartBtn");
+        this.ryw__skipBtn = this.ryw__centerZone.getChildByName("SkipBtn");
         this.ryw__levelNum = this.ryw__centerZone.getChildByName("LevelInfo").getChildByName("LevelNum");
         this.ryw__moneyNum = this.ryw__centerZone.getChildByName("MoneyInfo").getChildByName("MoneyNum");
     };
@@ -9787,14 +9489,24 @@ var ryw_MainViewTemplate = /** @class */ (function (_super) {
     ryw_MainViewTemplate.prototype.ryw_addEvent = function () {
         _super.prototype.ryw_addEvent.call(this);
         this.ryw__startBtn.on(Laya.Event.CLICK, this, this.ryw_onStartBtn);
+        this.ryw__skipBtn.on(Laya.Event.CLICK, this, this.ryw_onSkipBtn);
         EventMgr_1.default.ryw_instance.ryw_regEvemt(EventDef_1.ryw_EventDef.ryw_Game_OnUserMoneyChange, this, this.ryw_onUserMoneyChange);
     };
     ryw_MainViewTemplate.prototype.ryw_removeEvent = function () {
         _super.prototype.ryw_removeEvent.call(this);
         this.ryw__startBtn.off(Laya.Event.CLICK, this, this.ryw_onStartBtn);
+        this.ryw__skipBtn.off(Laya.Event.CLICK, this, this.ryw_onSkipBtn);
         EventMgr_1.default.ryw_instance.ryw_removeEvent(EventDef_1.ryw_EventDef.ryw_Game_OnUserMoneyChange, this, this.ryw_onUserMoneyChange);
     };
+    ryw_MainViewTemplate.prototype.ryw_onSkipBtn = function () {
+        // alert()
+        sessionStorage.setItem("SkipLvl",1);
+        ViewMgr_1.default.ryw_instance.ryw_openView(ViewMgr_1.ryw_ViewDef.ryw_GameFailView, null, function () {
+            ViewMgr_1.default.ryw_instance.ryw_closeView(ViewMgr_1.ryw_ViewDef.ryw_MainView); //关闭面板
+        });
+    };
     ryw_MainViewTemplate.prototype.ryw_onStartBtn = function () {
+        this.ryw__skipBtn.visible =true;
     };
     ryw_MainViewTemplate.prototype.ryw_onUserMoneyChange = function (para) {
         var curr = para.curr;
@@ -9804,7 +9516,7 @@ var ryw_MainViewTemplate = /** @class */ (function (_super) {
     return ryw_MainViewTemplate;
 }(TemplateViewBase_1.default));
 exports.default = ryw_MainViewTemplate;
-},{"../../../Event/EventDef":6,"../../../Event/EventMgr":7,"../../../KRQ/ViewCom/KRQ_Main":23,"../../../User/User":55,"../../../Utilit":56,"../TemplateViewBase":84}],81:[function(require,module,exports){
+},{"../../../Event/EventDef":6,"../../../Event/EventMgr":7,"../../../KRQ/ViewCom/KRQ_Main":23,"../../../Mgr/ViewMgr":30,"../../../User/User":55,"../../../Utilit":56,"../TemplateViewBase":84}],81:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var ViewBase_1 = require("../../ViewBase");
@@ -10594,7 +10306,8 @@ var ui;
                 _super.prototype.createChildren.call(this);
                 this.createView(LoadingUI.uiView);
             };
-            LoadingUI.uiView = { "type": "View", "props": { "width": 750, "top": 0, "right": 0, "left": 0, "height": 1334, "bottom": 0 }, "compId": 2, "child": [{ "type": "Clip", "props": { "width": 750, "top": 0, "skin": "UI/loading.png", "name": "Bg", "left": 0, "bottom": 0 }, "compId": 6, "child": [{ "type": "Clip", "props": { "right": 0, "name": "BottomZone", "left": 0, "height": 570, "bottom": 100 }, "compId": 23, "child": [{ "type": "Clip", "props": { "y": 326, "x": 376, "width": 615, "skin": "Loading/loadingxiatiao.png", "pivotY": 22, "pivotX": 308, "name": "processBarBg", "height": 44, "sizeGrid": "0,25,0,25" }, "compId": 8, "child": [{ "type": "Clip", "props": { "y": 22, "x": 10, "width": 594, "skin": "Loading/loadingshangtiao.png", "pivotY": 13, "name": "processBar", "left": 11, "height": 26, "bottom": 9, "sizeGrid": "0,12,0,12" }, "compId": 5 }, { "type": "Sprite", "props": { "y": -24, "x": 292, "width": 143, "texture": "Loading/ziyuanjiazaizhong.png", "pivotY": 12, "pivotX": 72, "height": 23 }, "compId": 10, "child": [{ "type": "Sprite", "props": { "y": 15, "x": 149, "width": 6, "texture": "Loading/jiazaidunhao.png", "height": 5 }, "compId": 11 }, { "type": "Sprite", "props": { "y": 15, "x": 159, "width": 6, "texture": "Loading/jiazaidunhao.png", "height": 5 }, "compId": 12 }, { "type": "Sprite", "props": { "y": 15, "x": 168, "width": 6, "texture": "Loading/jiazaidunhao.png", "height": 5 }, "compId": 13 }] }] }, { "type": "Clip", "props": { "y": 144, "x": 375, "width": 513, "pivotY": 50, "pivotX": 257, "name": "LogoAni", "height": 100 }, "compId": 14, "child": [{ "type": "Sprite", "props": { "y": 50, "x": 139, "width": 64, "texture": "Loading/ren.png", "pivotY": 32, "pivotX": 32, "height": 63 }, "compId": 15 }, { "type": "Sprite", "props": { "y": 50, "x": 209, "width": 70, "texture": "Loading/you.png", "pivotY": 33, "pivotX": 35, "height": 66 }, "compId": 16 }, { "type": "Sprite", "props": { "y": 51, "x": 286, "width": 77, "texture": "Loading/wan.png", "pivotY": 28, "pivotX": 39, "height": 56 }, "compId": 17 }, { "type": "Sprite", "props": { "y": 63, "x": 340, "width": 23, "texture": "Loading/R.png", "pivotY": 16, "pivotX": 12, "height": 32 }, "compId": 18 }, { "type": "Sprite", "props": { "y": 63, "x": 363, "width": 21, "texture": "Loading/Y.png", "pivotY": 16, "pivotX": 11, "height": 31 }, "compId": 19 }, { "type": "Sprite", "props": { "y": 62, "x": 392, "width": 33, "texture": "Loading/W.png", "pivotY": 15, "pivotX": 17, "height": 30 }, "compId": 20 }, { "type": "Script", "props": { "runtime": "View/LoadingView/LogoAni.ts" }, "compId": 21 }] }, { "type": "Sprite", "props": { "y": 493, "x": 375, "width": 558, "texture": "Loading/jiangkangyouxigonggao.png", "pivotY": 53, "pivotX": 279, "height": 105 }, "compId": 22 }] }, { "type": "Sprite", "props": { "y": 293, "x": 87, "texture": "UI/logo.png", "name": "bg" }, "compId": 24 }] }, { "type": "Script", "props": { "y": 0, "x": 0, "runtime": "View/LoadingView/LoadingView.ts" }, "compId": 7 }], "loadList": ["UI/loading.png", "Loading/loadingxiatiao.png", "Loading/loadingshangtiao.png", "Loading/ziyuanjiazaizhong.png", "Loading/jiazaidunhao.png", "Loading/ren.png", "Loading/you.png", "Loading/wan.png", "Loading/R.png", "Loading/Y.png", "Loading/W.png", "Loading/jiangkangyouxigonggao.png", "UI/logo.png"], "loadList3D": [] };
+            //LoadingUI.uiView = { "type": "View", "props": { "width": 750, "top": 0, "right": 0, "left": 0, "height": 1334, "bottom": 0 }, "compId": 2, "child": [{ "type": "Clip", "props": { "width": 750, "top": 0, "skin": "UI/loading.png", "name": "Bg", "left": 0, "bottom": 0 }, "compId": 6, "child": [{ "type": "Clip", "props": { "right": 0, "name": "BottomZone", "left": 0, "height": 570, "bottom": 100 }, "compId": 23, "child": [{ "type": "Clip", "props": { "y": 326, "x": 376, "width": 615, "skin": "Loading/loadingxiatiao.png", "pivotY": 22, "pivotX": 308, "name": "processBarBg", "height": 44, "sizeGrid": "0,25,0,25" }, "compId": 8, "child": [{ "type": "Clip", "props": { "y": 22, "x": 10, "width": 594, "skin": "Loading/loadingshangtiao.png", "pivotY": 13, "name": "processBar", "left": 11, "height": 26, "bottom": 9, "sizeGrid": "0,12,0,12" }, "compId": 5 }, { "type": "Sprite", "props": { "y": -24, "x": 292, "width": 143, "texture": "Loading/ziyuanjiazaizhong.png", "pivotY": 12, "pivotX": 72, "height": 23 }, "compId": 10, "child": [{ "type": "Sprite", "props": { "y": 15, "x": 149, "width": 6, "texture": "Loading/jiazaidunhao.png", "height": 5 }, "compId": 11 }, { "type": "Sprite", "props": { "y": 15, "x": 159, "width": 6, "texture": "Loading/jiazaidunhao.png", "height": 5 }, "compId": 12 }, { "type": "Sprite", "props": { "y": 15, "x": 168, "width": 6, "texture": "Loading/jiazaidunhao.png", "height": 5 }, "compId": 13 }] }] }, { "type": "Clip", "props": { "y": 144, "x": 375, "width": 513, "pivotY": 50, "pivotX": 257, "name": "LogoAni", "height": 100 }, "compId": 14, "child": [{ "type": "Sprite", "props": { "y": 50, "x": 139, "width": 64, "texture": "Loading/ren.png", "pivotY": 32, "pivotX": 32, "height": 63 }, "compId": 15 }, { "type": "Sprite", "props": { "y": 50, "x": 209, "width": 70, "texture": "Loading/you.png", "pivotY": 33, "pivotX": 35, "height": 66 }, "compId": 16 }, { "type": "Sprite", "props": { "y": 51, "x": 286, "width": 77, "texture": "Loading/wan.png", "pivotY": 28, "pivotX": 39, "height": 56 }, "compId": 17 }, { "type": "Sprite", "props": { "y": 63, "x": 340, "width": 23, "texture": "Loading/R.png", "pivotY": 16, "pivotX": 12, "height": 32 }, "compId": 18 }, { "type": "Sprite", "props": { "y": 63, "x": 363, "width": 21, "texture": "Loading/Y.png", "pivotY": 16, "pivotX": 11, "height": 31 }, "compId": 19 }, { "type": "Sprite", "props": { "y": 62, "x": 392, "width": 33, "texture": "Loading/W.png", "pivotY": 15, "pivotX": 17, "height": 30 }, "compId": 20 }, { "type": "Script", "props": { "runtime": "View/LoadingView/LogoAni.ts" }, "compId": 21 }] }, { "type": "Sprite", "props": { "y": 493, "x": 375, "width": 558, "texture": "Loading/jiangkangyouxigonggao.png", "pivotY": 53, "pivotX": 279, "height": 105 }, "compId": 22 }] }, { "type": "Sprite", "props": { "y": 293, "x": 87, "texture": "UI/logo.png", "name": "bg" }, "compId": 24 }] }, { "type": "Script", "props": { "y": 0, "x": 0, "runtime": "View/LoadingView/LoadingView.ts" }, "compId": 7 }], "loadList": ["UI/loading.png", "Loading/loadingxiatiao.png", "Loading/loadingshangtiao.png", "Loading/ziyuanjiazaizhong.png", "Loading/jiazaidunhao.png", "Loading/ren.png", "Loading/you.png", "Loading/wan.png", "Loading/R.png", "Loading/Y.png", "Loading/W.png", "Loading/jiangkangyouxigonggao.png", "UI/logo.png"], "loadList3D": [] };
+            LoadingUI.uiView = {};
             return LoadingUI;
         }(Laya.View));
         View.LoadingUI = LoadingUI;

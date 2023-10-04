@@ -353,13 +353,13 @@
           "props": {
             "y": 720,
             "x": 220,
-            "width": 127,
+            "width": 242,
             "visible": false,
-            "texture": "Template/fanhuishouye.png",
+            "texture": "extraAssets/retryBtn.png",
             "pivotY": 19,
             "pivotX": 64,
             "name": "BackBtn",
-            "height": 37
+            "height": 101
           },
           "compId": 98,
           "child": [
@@ -374,13 +374,13 @@
           "type": "Sprite",
           "props": {
             "y": 720,
-            "x": 255,
-            "width": 327,
-            "texture": "Template/xiayiguan.png",
+            "x": 325,
+            "width": 242,
+            "texture": "extraAssets/nextBtn.png",
             "pivotY": 19,
             "pivotX": 49,
             "name": "NextBtn",
-            "height": 97
+            "height": 101
           },
           "compId": 99,
           "child": [
