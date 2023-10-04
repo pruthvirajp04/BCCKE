@@ -4363,6 +4363,13 @@ var Funmgr = /** @class */ (function (_super) {
             }));
         }));
     };
+    Funmgr.prototype.onUpdate = function (){
+        if(sessionStorage.getItem("NudgeDel") == 1){
+            sessionStorage.removeItem("NudgeDel");
+            if(this.owner != null)
+            this.owner.getChildByName("Nudge").visible=false;
+        }
+    }
     Funmgr.prototype.onStart = function () {
         _super.prototype.onStart.call(this);
         this.onShoMove();
@@ -4395,10 +4402,6 @@ var Funmgr = /** @class */ (function (_super) {
         if (Funmgr.instance.Tween_1 != null)
             Laya.Tween.clear(Funmgr.instance.Tween_1);
         CameraMove_1.default.instance.onStartGame();
-        setTimeout(()=>{
-            if(this.owner != null)
-            this.owner.getChildByName("Nudge").visible=false;
-        },1500);
     };
     Funmgr.prototype.onGameOver = function () {
         SoundMgr_1.default.ryw_instance.ryw_playSound("death");
@@ -4466,10 +4469,12 @@ var MouseInput = /** @class */ (function (_super) {
         this._ownerSp.off(Laya.Event.MOUSE_UP, this, this.onUp);
     };
     MouseInput.prototype.onUp = function () {
+        sessionStorage.setItem("NudgeDel",1);
         Fiy_1.default.instance.onMoveRes();
         this._isBool = false;
     };
     MouseInput.prototype.onDown = function () {
+        sessionStorage.setItem("NudgeDel",1);
         var point = this._ownerSp.globalToLocal(new Laya.Point(this._ownerSp.mouseX, this._ownerSp.mouseY));
         this._centerPoint = new Laya.Vector2(point.x, point.y);
         this._isBool = true;
